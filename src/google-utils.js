@@ -18,6 +18,10 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
 
+const auth = new google.auth.GoogleAuth({
+  keyFile:'./service-account.json',
+  scopes:['https://www.googleapis.com/auth/spreadsheets']
+});
 
 const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
@@ -132,11 +136,33 @@ async function getReturnmentLabel(fileId) {
 
 }
 
+async function devolutionRecord(values) {
+  const sheets = google.sheets({ version: 'v4', auth });
+  const spreadsheetId = process.env.SPREADSHEET_ID;
+  const range = 'Devolution';
+  const valueInputOption = 'USER_ENTERED'; 
+
+
+  const resource = { values };  // The data to be written.
+
+  try {
+      const res = await sheets.spreadsheets.values.update({
+          spreadsheetId, range, valueInputOption, resource
+      })
+      return res;  // Returns the response from the Sheets API.
+  } catch (error) {
+      console.error('error', error);  // Logs errors.
+  }
+}
+
+
+
 module.exports = { 
   getReturnmentLabel,
   uploadImageFile, 
   uploadPDFFile, 
   deleteImage, 
   deleteReturnmentLabel,
-  getImage
+  getImage,
+  devolutionRecord
 };
