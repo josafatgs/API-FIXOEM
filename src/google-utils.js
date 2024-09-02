@@ -221,11 +221,11 @@ async function updateDevolution(
 
 
 
-  console.log(resourceDevolution);
-  console.log(resourceDevolutionItems);
-  console.log(resourceDevolutionImages);
-  console.log(resourceResolution);
-  console.log(resourceResolutionImages);
+  // console.log(resourceDevolution);
+  // console.log(resourceDevolutionItems);
+  // console.log(resourceDevolutionImages);
+  // console.log(resourceResolution);
+  // console.log(resourceResolutionImages);
 
   let varRangeDevolutionItem = [];
   let varRangeDevolution;
@@ -242,7 +242,7 @@ async function updateDevolution(
   
     list.forEach((subList, outerIndex) => {
       if (subList[0] === val) {
-        indices.push(outerIndex);
+        indices.push(outerIndex+1);
       }
     });
   
@@ -318,7 +318,7 @@ async function updateDevolution(
   
       Promise.all(resourceDevolutionItems.map((element, index) => {
         const range = varRangeDevolutionItem[index];
-        console.log(range);
+        // console.log(range);
         return sheets.spreadsheets.values.update({
           spreadsheetId,
           range: range,
@@ -329,7 +329,7 @@ async function updateDevolution(
   
       Promise.all(resourceDevolutionImages.map((element, index) => {
         const range = varRangeDevolutionImages[index];
-        console.log(range);
+        // console.log(range);
         return sheets.spreadsheets.values.update({
           spreadsheetId,
           range: range,
@@ -346,14 +346,31 @@ async function updateDevolution(
       }),
   
       Promise.all(resourceResolutionImages.map((element, index) => {
+        
         const range = varRangeResolutionImages[index];
-        //console.log(range)
-        return sheets.spreadsheets.values.update({
-          spreadsheetId,
-          range: range ? range: rangeResolutionImages,
-          valueInputOption,
-          resource: resourceResolutionImages[index],
-        });
+        // console.log(index);
+        // console.log(range);
+
+        if (range === undefined) {
+
+          return sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: rangeResolutionImages,
+            valueInputOption,
+            resource: element,
+          });
+
+        } else {
+
+          return sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: range ,
+            valueInputOption,
+            resource: element,
+          });
+
+        }
+        
       }))
 
     ]);
