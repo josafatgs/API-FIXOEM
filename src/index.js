@@ -14,7 +14,7 @@ const port = 5000;
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
-const { devolutionRecord, getReturnmentLabel, getImage, uploadImageFile, uploadPDFFile, deleteImage, deleteReturnmentLabel } = require("./google-utils");
+const { updateDevolution, addDevolution, getReturnmentLabel, getImage, uploadImageFile, uploadPDFFile, deleteImage, deleteReturnmentLabel } = require("./google-utils");
 
 app.post('/uploadPhoto', upload.single('image'), async (req, res) => { 
     
@@ -156,26 +156,232 @@ app.get('/getImage/', async (req, res) => {
 app.post('/spreadsheet/devolution', async (req, res) => {
     try {
 
-        const { devolution } = req.body;
+        const devolution = req.body;
 
-        if (!Array.isArray(devolution)) {
-            devolution = Object.values(devolution); // Convierte a array si no lo es.
-        }
+        const uid = Number.parseFloat(
+            Number(devolution['devolution'][0]["date"].replaceAll("-", "") + devolution['devolution'][0]["ticketNumber"]) / 2
+        ).toFixed(0);
 
-        const uid = Number(devolution[0].replaceAll("-", "") + devolution[5]) / 2;
-        
-        const newDevolution = [uid].concat(devolution);
 
-        console.log(Array.isArray(devolution))
-        console.log(newDevolution);
+        let columnsDevolution = devolution['devolution'].map(e => Object.keys(e))[0];
+        columnsDevolution = ["uid"].concat(columnsDevolution);
+        let devolutionData = [];
 
-        const result = await devolutionRecord(newDevolution);
+
+        for (item of devolution['devolution']) {
+            let row = [];
+            for (column of columnsDevolution) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            devolutionData.push(row);
+        };
+
+        console.log(devolutionData);
+
+    
+        let columnsItems = devolution['items'].map(e => Object.keys(e))[0];
+        columnsItems = ["uid"].concat(columnsItems);
+        let devolutionItems = [];
+
+
+        for (item of devolution['items']) {
+            let row = [];
+            for (column of columnsItems) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            devolutionItems.push(row);
+        };
+
+        console.log(devolutionItems);
+
+        let columnsImages = devolution['images'].map(e => Object.keys(e))[0];
+        columnsImages = ["uid"].concat(columnsImages);
+        let devolutionImages = [];
+
+
+        for (item of devolution['images']) {
+            let row = [];
+            for (column of columnsImages) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            devolutionImages.push(row);
+        };
+
+        console.log(devolutionImages);
+
+        let columnsResolution = devolution['resolution'].map(e => Object.keys(e))[0];
+        columnsResolution = ["uid"].concat(columnsResolution);
+        let resolutionData = [];
+
+
+        for (item of devolution['resolution']) {
+            let row = [];
+            for (column of columnsResolution) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            resolutionData.push(row);
+        };
+
+        console.log(resolutionData);
+
+        let columnsResolutionImages = devolution['resolution_images'].map(e => Object.keys(e))[0];
+        columnsResolutionImages = ["uid"].concat(columnsResolutionImages);
+        let resolutionImages = [];
+
+
+        for (item of devolution['resolution_images']) {
+            let row = [];
+            for (column of columnsResolutionImages) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            resolutionImages.push(row);
+        };
+
+        const result = await addDevolution(devolutionData, devolutionItems, devolutionImages, resolutionData, resolutionImages);
         res.send(result);
 
     } catch (error) {
         res.status(500).send(error.message);
     }
 })
+
+app.put('/spreadsheet/devolution/', async (req, res) => {
+    try {
+        
+        const devolution = req.body;
+        const uid = devolution['id'];
+
+        let columnsDevolution = devolution['devolution'].map(e => Object.keys(e))[0];
+        columnsDevolution = ["uid"].concat(columnsDevolution);
+        let devolutionData = [];
+
+
+        for (item of devolution['devolution']) {
+            let row = [];
+            for (column of columnsDevolution) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            devolutionData.push(row);
+        };
+
+        console.log(devolutionData);
+
+    
+        let columnsItems = devolution['items'].map(e => Object.keys(e))[0];
+        columnsItems = ["uid"].concat(columnsItems);
+        let devolutionItems = [];
+
+
+        for (item of devolution['items']) {
+            let row = [];
+            for (column of columnsItems) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            devolutionItems.push(row);
+        };
+
+        console.log(devolutionItems);
+
+        let columnsImages = devolution['images'].map(e => Object.keys(e))[0];
+        columnsImages = ["uid"].concat(columnsImages);
+        let devolutionImages = [];
+
+
+        for (item of devolution['images']) {
+            let row = [];
+            for (column of columnsImages) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            devolutionImages.push(row);
+        };
+
+        console.log(devolutionImages);
+
+        let columnsResolution = devolution['resolution'].map(e => Object.keys(e))[0];
+        columnsResolution = ["uid"].concat(columnsResolution);
+        let resolutionData = [];
+
+
+        for (item of devolution['resolution']) {
+            let row = [];
+            for (column of columnsResolution) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            resolutionData.push(row);
+        };
+
+        console.log(resolutionData);
+
+        let columnsResolutionImages = devolution['resolution_images'].map(e => Object.keys(e))[0];
+        columnsResolutionImages = ["uid"].concat(columnsResolutionImages);
+        let resolutionImages = [];
+
+
+        for (item of devolution['resolution_images']) {
+            let row = [];
+            for (column of columnsResolutionImages) {
+
+                if (column == "uid") {
+                    row.push(uid)
+                } else {
+                    row.push(item[column]);
+                }
+            }
+            resolutionImages.push(row);
+        };
+
+        const result = await updateDevolution(uid, devolutionData, devolutionItems, devolutionImages, resolutionData, resolutionImages);
+        res.send(result);
+
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
