@@ -14,7 +14,7 @@ const port = 5000;
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
-const { updateDevolution, addDevolution, getReturnmentLabel, getImage, uploadImageFile, uploadPDFFile, deleteImage, deleteReturnmentLabel } = require("./google-utils");
+const { updateOnlyResolutionImages,updateDevolution, addDevolution, getReturnmentLabel, getImage, uploadImageFile, uploadPDFFile, deleteImage, deleteReturnmentLabel } = require("./google-utils");
 
 app.post('/uploadPhoto', upload.single('image'), async (req, res) => { 
     
@@ -270,7 +270,13 @@ app.post('/spreadsheet/devolution', async (req, res) => {
     }
 })
 
+app.delete('/spreadsheet/devolution/image', async (req, res) => {
+    
+})
+
 app.put('/spreadsheet/devolution/', async (req, res) => {
+
+
     try {
         
         const devolution = req.body;
@@ -294,7 +300,7 @@ app.put('/spreadsheet/devolution/', async (req, res) => {
             devolutionData.push(row);
         };
 
-        console.log(devolutionData);
+        //console.log(devolutionData);
 
     
         let columnsItems = devolution['items'].map(e => Object.keys(e))[0];
@@ -315,7 +321,7 @@ app.put('/spreadsheet/devolution/', async (req, res) => {
             devolutionItems.push(row);
         };
 
-        console.log(devolutionItems);
+       // console.log(devolutionItems);
 
         let columnsImages = devolution['images'].map(e => Object.keys(e))[0];
         columnsImages = ["uid"].concat(columnsImages);
@@ -335,7 +341,7 @@ app.put('/spreadsheet/devolution/', async (req, res) => {
             devolutionImages.push(row);
         };
 
-        console.log(devolutionImages);
+        //console.log(devolutionImages);
 
         let columnsResolution = devolution['resolution'].map(e => Object.keys(e))[0];
         columnsResolution = ["uid"].concat(columnsResolution);
@@ -355,7 +361,7 @@ app.put('/spreadsheet/devolution/', async (req, res) => {
             resolutionData.push(row);
         };
 
-        console.log(resolutionData);
+        //console.log(resolutionData);
 
         let columnsResolutionImages = devolution['resolution_images'].map(e => Object.keys(e))[0];
         columnsResolutionImages = ["uid"].concat(columnsResolutionImages);
@@ -375,13 +381,15 @@ app.put('/spreadsheet/devolution/', async (req, res) => {
             resolutionImages.push(row);
         };
 
-        const result = await updateDevolution(uid, devolutionData, devolutionItems, devolutionImages, resolutionData, resolutionImages);
+        //const result = await updateDevolution(uid, devolutionData, devolutionItems, devolutionImages, resolutionData, resolutionImages);
+        const result = await updateOnlyResolutionImages(uid, resolutionImages);
         res.send(result);
 
     } catch (error) {
         res.status(500).send(error.message);
     }
 });
+
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);

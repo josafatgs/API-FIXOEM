@@ -225,7 +225,7 @@ async function updateDevolution(
   // console.log(resourceDevolutionItems);
   // console.log(resourceDevolutionImages);
   // console.log(resourceResolution);
-  // console.log(resourceResolutionImages);
+  console.log(resolutionImages);
 
   let varRangeDevolutionItem = [];
   let varRangeDevolution;
@@ -271,6 +271,9 @@ async function updateDevolution(
       spreadsheetId, range: rangeResolutionImages
     });
 
+    const res = [];
+
+
     const indexDevolutionData =  (allDevolutionData.data.values.findIndex( isTheOne ) + 1).toString();
     const indexDevolutionItem = findOcurrences(allDevolutionItem.data.values, idDevolution);
     const indexDevolutionImages = findOcurrences(allDevolutionImages.data.values, idDevolution);
@@ -291,15 +294,18 @@ async function updateDevolution(
 
     indexResolutionImages.forEach( (element) => {
       varRangeResolutionImages.push(rangeResolutionImages + "!A" + element + ":B" + element);
+      res.push(allResolutionImages.data.values[element-1]);
     })
+
+    console.log(res);
     
-    // return { 
-    //   'Devolution': varRangeDevolution, 
-    //   'Devolution Item': varRangeDevolutionItem,
-    //   'DevolutionImages': varRangeDevolutionImages,
-    //   'Resolution': varRangeResolution,
-    //   'ResolutionImages': varRangeResolutionImages
-    // }
+    return { 
+      'Devolution': varRangeDevolution, 
+      'Devolution Item': varRangeDevolutionItem,
+      'DevolutionImages': varRangeDevolutionImages,
+      'Resolution': varRangeResolution,
+      'ResolutionImages': varRangeResolutionImages
+    }
 
   } catch (error) {
     return error.message;
@@ -384,7 +390,187 @@ async function updateDevolution(
 
 }
 
+async function updateOnlyResolution(
+  idDevolution, resolutionData) {
+  
+  const sheets = google.sheets({ version: 'v4', auth });
+  const spreadsheetId = process.env.SPREADSHEET_ID;
 
+  const rangeResolution = 'Resolution';
+  const valueInputOption = 'USER_ENTERED';
+  const resourceResolution = { values:  resolutionData};
+
+  let varRangeResolution;
+
+  const isTheOne = ( element ) => {
+    return element[0] == idDevolution;
+  }
+
+  try {
+    
+    const allResolutionData = await sheets.spreadsheets.values.get({
+      spreadsheetId, range: rangeResolution
+    });
+
+    const indexResolutionData = (allResolutionData.data.values.findIndex(isTheOne) + 1).toString();
+
+    varRangeResolution = rangeResolution + "!A" + indexResolutionData + ":D" + indexResolutionData;
+    
+    const resolutionResult =  sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: varRangeResolution,
+      valueInputOption,
+      resource: resourceResolution,
+    })
+
+    return resolutionResult;
+
+  } catch (error) {
+    return error.message;
+  }
+  
+}
+
+async function updateOnlyResolutionImages(
+  idDevolution, resolutionDataImages) {
+
+    const sheets = google.sheets({ version: 'v4', auth });
+    const spreadsheetId = process.env.SPREADSHEET_ID;
+
+    const valueInputOption = 'USER_ENTERED';
+    const rangeResolutionImages = 'Resolution Image'
+    const resourceResolutionImages = resolutionDataImages.map( (element) => {
+      return { values: [element]}
+    });
+
+    let varRangeResolutionImages = [];
+    let res = [];
+
+    const findOcurrences = (list, val) => {
+      let indices = [];
+    
+      list.forEach((subList, outerIndex) => {
+        if (subList[0] === val) {
+          indices.push(outerIndex+1);
+        }
+      });
+    
+      return indices;
+    }
+
+    try {
+      
+      const allResolutionImages = await sheets.spreadsheets.values.get({
+        spreadsheetId, range: rangeResolutionImages
+      });
+
+      const indexResolutionImages = findOcurrences(allResolutionImages.data.values, idDevolution);
+      
+      indexResolutionImages.forEach( (element) => {
+        varRangeResolutionImages.push(rangeResolutionImages + "!A" + element + ":B" + element);
+        res.push(allResolutionImages.data.values[element-1]);
+      })
+
+      return console.log(compareLists(resolutionDataImages, res));
+
+      // Promise.all(resourceResolutionImages.map((element, index) => {
+        
+      //   const range = varRangeResolutionImages[index];
+
+      //   if (range === undefined) {
+
+      //     return sheets.spreadsheets.values.append({
+      //       spreadsheetId,
+      //       range: rangeResolutionImages,
+      //       valueInputOption,
+      //       resource: element,
+      //     });
+
+      //   } else {
+
+      //     return sheets.spreadsheets.values.update({
+      //       spreadsheetId,
+      //       range: range ,
+      //       valueInputOption,
+      //       resource: element,
+      //     });
+
+      //   }
+        
+      // }))
+
+ 
+    } catch (error) {
+      return error.message;
+    }
+
+}
+
+async function updateOnlyDevolution(
+  idDevolution, devolutionData) {
+  
+  const sheets = google.sheets({ version: 'v4', auth });
+  const spreadsheetId = process.env.SPREADSHEET_ID;
+
+  const rangeDevolution = 'Devolution';
+  const valueInputOption = 'USER_ENTERED';
+  const resourceDevolution = { values: devolutionData }; 
+
+  let varRangeDevolution;
+
+  const isTheOne = ( element ) => {
+    return element[0] == idDevolution;
+  }
+
+  try {
+    
+    const allDevolutionData = await sheets.spreadsheets.values.get({
+      spreadsheetId, range: rangeDevolution
+    })
+
+    const indexDevolutionData = (allDevolutionData.data.values.findIndex( isTheOne ) + 1).toString();
+
+    varRangeDevolution = rangeDevolution + "!A" + indexDevolutionData + ":M" + indexDevolutionData;
+
+    const devolutionResult = sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: varRangeDevolution,
+      valueInputOption,
+      resource: resourceDevolution,
+    });
+
+    return devolutionResult;
+
+  } catch (error) {
+    return error.message;
+  }
+}
+
+function compareLists(ListaJson, ListaSheet) {
+
+  // console.log(ListaJson);
+  // console.log(ListaSheet);
+
+  let appendValues = [];
+  let deleteValues = [];
+
+
+  ListaJson.forEach( (element) => { 
+    if (!ListaSheet.find((item) => JSON.stringify(item) === JSON.stringify(element))) {
+      appendValues.push(element);
+    }
+  })
+
+  ListaSheet.forEach( (element) => { 
+    if (!ListaSheet.find((item) => JSON.stringify(item) === JSON.stringify(element))) {
+      deleteValues.push(element);
+    }
+  })
+
+
+  return [ appendValues, deleteValues ]
+
+}
 
 module.exports = { 
   getReturnmentLabel,
@@ -394,5 +580,7 @@ module.exports = {
   deleteReturnmentLabel,
   getImage,
   addDevolution,
-  updateDevolution
+  updateDevolution,
+  updateOnlyDevolution,
+  updateOnlyResolutionImages
 };
