@@ -471,7 +471,27 @@ async function updateOnlyResolutionImages(
         res.push(allResolutionImages.data.values[element-1]);
       })
 
-      return console.log(compareLists(resolutionDataImages, res));
+      const comparedLists = compareLists(resolutionDataImages, res);
+
+      //return console.log(comparedLists);
+
+      if ( comparedLists.ToDelete.length > 0 ) {
+        Promise.all(compareLists.ToDelete.map( (element, index) => {
+          const range = varRangeResolutionImages[index];
+
+          return sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: range ,
+            valueInputOption,
+            resource: element,
+          });
+
+        }))
+      }
+
+      if ( comparedLists.ToAppend.length > 0 ) {
+        
+      }
 
       // Promise.all(resourceResolutionImages.map((element, index) => {
         
@@ -548,9 +568,6 @@ async function updateOnlyDevolution(
 
 function compareLists(ListaJson, ListaSheet) {
 
-  // console.log(ListaJson);
-  // console.log(ListaSheet);
-
   let appendValues = [];
   let deleteValues = [];
 
@@ -562,13 +579,13 @@ function compareLists(ListaJson, ListaSheet) {
   })
 
   ListaSheet.forEach( (element) => { 
-    if (!ListaSheet.find((item) => JSON.stringify(item) === JSON.stringify(element))) {
+    if (!ListaJson.find((item) => JSON.stringify(item) === JSON.stringify(element))) {
       deleteValues.push(element);
     }
   })
 
 
-  return [ appendValues, deleteValues ]
+  return { ToAppend: appendValues, ToDelete: deleteValues }
 
 }
 
