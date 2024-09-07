@@ -476,22 +476,22 @@ async function updateOnlyResolutionImages(
       //return console.log(comparedLists);
 
       if ( comparedLists.ToDelete.length > 0 ) {
-        Promise.all(compareLists.ToDelete.map( (element, index) => {
+        Promise.all(comparedLists.ToDelete.map( (element, index) => {
           const range = varRangeResolutionImages[index];
+
+          console.log(element);
 
           return sheets.spreadsheets.values.update({
             spreadsheetId,
             range: range ,
             valueInputOption,
-            resource: element,
+            resource: {values: [['', '']]},
           });
 
         }))
       }
 
-      if ( comparedLists.ToAppend.length > 0 ) {
-        
-      }
+      
 
       // Promise.all(resourceResolutionImages.map((element, index) => {
         
