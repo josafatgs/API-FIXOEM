@@ -491,7 +491,7 @@ async function updateOnlyResolutionImages(
 
         //   return sheets.spreadsheets.values.update({
         //     spreadsheetId,
-        //     range: element ,
+        //     range: indexResolutionImages.element[0] +  ,
         //     valueInputOption,
         //     resource: { values: [['', '']] },
         //   });
