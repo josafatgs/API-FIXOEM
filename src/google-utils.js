@@ -447,15 +447,17 @@ async function updateOnlyResolutionImages(
     let res = [];
 
     const findOcurrences = (list, val) => {
-      let indices = [];
+      let indices = {};
+      let indexes = [];
     
       list.forEach((subList, outerIndex) => {
         if (subList[0] === val) {
-          indices.push(outerIndex+1);
+          indices[subList[1]] = outerIndex+1;
+          indexes.push(outerIndex+1);
         }
       });
     
-      return indices;
+      return [indices, indexes];
     }
 
     try {
@@ -464,61 +466,53 @@ async function updateOnlyResolutionImages(
         spreadsheetId, range: rangeResolutionImages
       });
 
-      const indexResolutionImages = findOcurrences(allResolutionImages.data.values, idDevolution);
+      const [indexResolutionImages, indixes] = findOcurrences(allResolutionImages.data.values, idDevolution);
+      // console.log(indexResolutionImages);
+
+      // return indexResolutionImages;
       
-      indexResolutionImages.forEach( (element) => {
+      indixes.forEach( (element) => {
         varRangeResolutionImages.push(rangeResolutionImages + "!A" + element + ":B" + element);
         res.push(allResolutionImages.data.values[element-1]);
       })
 
       const comparedLists = compareLists(resolutionDataImages, res);
 
-      //return console.log(comparedLists);
+      console.log(comparedLists);
+      //console.log(res);
 
       if ( comparedLists.ToDelete.length > 0 ) {
-        Promise.all(comparedLists.ToDelete.map( (element, index) => {
-          const range = varRangeResolutionImages[index];
+        console.log(comparedLists.ToDelete);
+        return;
+        // Promise.all(comparedLists.ToDelete.map( (element, index) => {
+        //   console.log(element);
+        //   //const range = varRangeResolutionImages[index];
+        //   //console.log(range);
 
-          console.log(element);
+        //   return sheets.spreadsheets.values.update({
+        //     spreadsheetId,
+        //     range: element ,
+        //     valueInputOption,
+        //     resource: { values: [['', '']] },
+        //   });
 
-          return sheets.spreadsheets.values.update({
-            spreadsheetId,
-            range: range ,
-            valueInputOption,
-            resource: {values: [['', '']]},
-          });
-
-        }))
+        // }))
       }
 
-      
-
-      // Promise.all(resourceResolutionImages.map((element, index) => {
-        
-      //   const range = varRangeResolutionImages[index];
-
-      //   if (range === undefined) {
+      // if ( comparedLists.ToAppend.length > 0 ) {
+      //   Promise.all(comparedLists.ToAppend.map( (element, index) => {
+      //     console.log(comparedLists.ToAppend[index]);
+      //     //console.log(element);
 
       //     return sheets.spreadsheets.values.append({
       //       spreadsheetId,
-      //       range: rangeResolutionImages,
+      //       range: rangeResolutionImages ,
       //       valueInputOption,
-      //       resource: element,
+      //       resource: { values: [comparedLists.ToAppend[index]] },
       //     });
 
-      //   } else {
-
-      //     return sheets.spreadsheets.values.update({
-      //       spreadsheetId,
-      //       range: range ,
-      //       valueInputOption,
-      //       resource: element,
-      //     });
-
-      //   }
-        
-      // }))
-
+      //   }))
+      // }
  
     } catch (error) {
       return error.message;
